@@ -1,0 +1,88 @@
+version: "3"
+services:
+
+  #----------------------------------
+  # POSTGRESQL + POSTGIS + TIMESCALE
+  #----------------------------------
+  postgresql:
+    image: timescale/timescaledb-postgis
+    container_name: postgresql
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgress
+      - POSTGRES_DB=postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./configuration/postgresql/initdb:/docker-entrypoint-initdb.d
+      - ./data/postgresql:/var/lib/postgresql/data
+
+
+  #------------------------
+  # LORASERVER
+  #------------------------
+  loraserver:
+    image: loraserver/loraserver:2
+    container_name: lora-server
+    volumes:
+      - ./configuration/loraserver:/etc/loraserver
+
+  appserver:
+    image: loraserver/lora-app-server:2
+    container_name: lora-app-server
+    ports:
+      - 8080:8080
+    volumes:
+      - ./configuration/lora-app-server:/etc/lora-app-server
+
+  gatewaybridge:
+    image: loraserver/lora-gateway-bridge:2
+    container_name: lora-gateway-bridge
+    ports:
+      - 1700:1700/udp
+    volumes:
+      - ./configuration/lora-gateway-bridge:/etc/lora-gateway-bridge
+  
+  geoserver:
+    image: loraserver/lora-geo-server:2
+    container_name: lora-geo-server
+    volumes:
+      - ./configuration/lora-geo-server:/etc/lora-geo-server
+
+  redis:
+    image: redis:4-alpine
+    container_name: lora-redis
+    volumes:
+      - ./data/redis:/data
+
+  mosquitto:
+    image: eclipse-mosquitto
+    container_name: lora-mosquitto
+    ports:
+      - 1883:1883
+
+
+  #----------------
+  # NODERED
+  #----------------
+  nodered:
+    image: nodered/node-red-docker:slim
+    container_name: nodered
+    ports:
+      - "1880:1880"
+    volumes:
+      - ./data/nodered:/data
+    restart: always
+
+
+  #----------------
+  # GRAFANA
+  #----------------
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./data/grafana:/var/lib/grafana
+    restart: always
