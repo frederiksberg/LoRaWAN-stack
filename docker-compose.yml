@@ -16,6 +16,8 @@ services:
     volumes:
       - ./configuration/postgresql/initdb:/docker-entrypoint-initdb.d
       - ./data/postgresql:/var/lib/postgresql/data
+    restart: unless-stopped
+
 
 
   #------------------------
@@ -26,6 +28,9 @@ services:
     container_name: lora-server
     volumes:
       - ./configuration/loraserver:/etc/loraserver
+    depends_on:
+      - postgresql
+    restart: unless-stopped
 
   appserver:
     image: loraserver/lora-app-server:2
@@ -34,6 +39,10 @@ services:
       - 8080:8080
     volumes:
       - ./configuration/lora-app-server:/etc/lora-app-server
+    depends_on:
+      - postgresql
+    restart: unless-stopped
+
 
   gatewaybridge:
     image: loraserver/lora-gateway-bridge:2
@@ -42,24 +51,32 @@ services:
       - 1700:1700/udp
     volumes:
       - ./configuration/lora-gateway-bridge:/etc/lora-gateway-bridge
+    restart: unless-stopped
+
   
   geoserver:
     image: loraserver/lora-geo-server:2
     container_name: lora-geo-server
     volumes:
       - ./configuration/lora-geo-server:/etc/lora-geo-server
+    restart: unless-stopped
+
 
   redis:
     image: redis:4-alpine
     container_name: lora-redis
     volumes:
       - ./data/redis:/data
+    restart: unless-stopped
+
 
   mosquitto:
     image: eclipse-mosquitto
     container_name: lora-mosquitto
     ports:
       - 1883:1883
+    restart: unless-stopped
+
 
 
   #----------------
@@ -72,7 +89,7 @@ services:
       - "1880:1880"
     volumes:
       - ./data/nodered:/data
-    restart: always
+    restart: unless-stopped
 
 
   #----------------
@@ -81,8 +98,11 @@ services:
   grafana:
     image: grafana/grafana
     container_name: grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=YourPassword
+      - GF_INSTALL_PLUGINS=grafana-worldmap-panel
     ports:
       - "3000:3000"
     volumes:
       - ./data/grafana:/var/lib/grafana
-    restart: always
+    restart: unless-stopped
