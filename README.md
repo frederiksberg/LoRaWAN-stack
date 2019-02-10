@@ -44,8 +44,8 @@ In order to secure the stack following passwords need to be changed before runni
 * `postgres` PostgreSQL user here: `docker-compose.yml`
 * `iot` PostgreSQL user here: `configuration/postgresql/initdb/004-init-iot-db.sh`
 * Grafana readonly PostgreSQL user here: `configuration/postgresql/initdb/004-init-iot-db.sh`
-* Grafana admin user: `docker-compose.yml`
-* Node-RED users: https://nodered.org/docs/security
+* Grafana `admin` user: `docker-compose.yml`
+* Node-RED [enable admin auth](https://nodered.org/docs/security): `data/nodered/settings.js` (Currently needs to be done after `docker-compose up` and entails `docker restart nodered`)
 
 TODO:
 * HTTPS
@@ -53,7 +53,7 @@ TODO:
 
 ## Usage
 
-To start all the LoRaWAN stack components, simply run:
+When configuration and security steps are done start all the LoRaWAN stack components by simply running:
 
 ```bash
 $ docker-compose up
@@ -68,20 +68,35 @@ $ docker-compose up
 After all the components have been initialized and started, you should be able
 to open http://localhost:8080/ (LoRa Server), http://localhost:3000/ (Grafana) and http://localhost:1880/ (Node-RED) in your browser.
 
-### Add network-server
+## Getting started
+### First gateway and device on Lora Server
+Here's a tutorial for setteing up [first gateway and device](https://www.loraserver.io/guides/first-gateway-device/)
 
+#### Add network-server
 When adding the network-server in the LoRa App Server web-interface
 (see [network-servers](https://www.loraserver.io/lora-app-server/use/network-servers/)),
 you must enter `loraserver:8000` as the network-server `hostname:IP`.
 
-## Getting started
-### First gateway and device on Lora Server
-Here's a tutorial for setteing up [first gateway and device](https://www.loraserver.io/guides/first-gateway-device/)
+### First timeseries table in PostgreSQL
+TimescaleDB is used to handle large reading and writing of data.
+```sql
+CREATE TABLE water_level (
+	ts timestamptz NOT null,
+	pressure float NOT NULL,
+	temperature float NOT NULL,
+	battery float NOT NULL,
+	device_id int4 NULL
+);
+
+-- Create the hypertable
+SELECT create_hypertable('water_level', 'ts');
+```
+
 ### First flow in Node-RED
 We will create a flow which takes device data from Lora server and writes the data to table in PostgreSQL. In order to read and write data to PostgreSQL, we can make use of the [node-red-contrib-postgres](https://flows.nodered.org/node/node-red-contrib-postgres) nodes, which can be installed under Manage palette in the top left menu. From here we need to:
-* Get data from Lora server.
-* Prepare data for table insert in postgres.
-* Write the data to the database.
+1. Get data from Lora server.
+2. Prepare data for table insert in postgres.
+3. Write the data to the database.
 
 You can simply refer to `postgresql` as the host when setting up the connection details in the postgres node.
 
@@ -91,6 +106,13 @@ Here's a bit of flow inspiration, which can easily be imported to yout Node-RED 
 ```
 
 ### First dashboard in Grafana
-Add datasource
-`grafanareader` read only user
-### First timeseries table in PostgreSQL
+1. Add PostgreSQL datasource. Hostname is `postgresql` and it is reommendeed to use the `grafanareader` read only user.
+2. Create a new dashboard and add a Graph panel.
+3. Edit panel and make sure `grafanareader` has privileges to read from the  table.
+4. Under `Metrics` pane it is possible to query the table using a Query Builder or plain SQL. Grafana needs time and metric column in order to generate the gragh.
+
+## References
+* [TimescaleDB](https://docs.timescale.com/v1.2/main)
+* [Node-RED](https://nodered.org/docs/)
+* [Grafana](http://docs.grafana.org/)
+* [Lora Server](https://www.loraserver.io/overview/)
