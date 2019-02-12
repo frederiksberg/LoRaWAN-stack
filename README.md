@@ -14,11 +14,16 @@ but keep in mind that for production usage it might need modifications.
     * https://www.loraserver.io/loraserver/install/config/
     * https://www.loraserver.io/lora-app-server/install/config/
     * https://www.loraserver.io/lora-geo-server/install/config/
+
 * `configuration/postgresql/initdb/`: directory containing PostgreSQL initialization scripts
-* `data/postgresql`: directory containing the PostgreSQL data (auto-created)
-* `data/redis`: directory containing the Redis data (auto-created)
-* `data/grafana`: directory containing the Grafana data (auto-created)
-* `data/nodered`: directory containing the Node-RED data (auto-created)
+
+## Persistence storage
+Docker volumes are used for persistence storage of data from the different apps and are defined in `docker-compose.yml`
+
+* `postgresql-data`: volume containing the PostgreSQL data
+* `redis-data`: volume containing the Redis data
+* `grafana-data`: volume containing the Grafana data
+* `nodered-data`: volume containing the Node-RED data
 
 
 ## Configuration
