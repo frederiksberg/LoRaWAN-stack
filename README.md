@@ -17,8 +17,8 @@ but keep in mind that for production usage it might need modifications.
 
 * `configuration/postgresql/initdb/`: directory containing PostgreSQL initialization scripts
 
-## Persistence storage
-Docker volumes are used for persistence storage of data from the different apps and are defined in `docker-compose.yml`
+## Persistent storage
+Docker volumes are used for persistent storage of data from the different apps and are defined in `docker-compose.yml`
 
 * `postgresql-data`: volume containing the PostgreSQL data
 * `redis-data`: volume containing the Redis data
