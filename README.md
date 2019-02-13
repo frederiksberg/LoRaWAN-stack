@@ -100,6 +100,7 @@ SELECT create_hypertable('water_level', 'ts');
 ### First flow in Node-RED
 We will create a flow which takes device data from Lora server and writes the data to table in PostgreSQL. In order to read and write data to PostgreSQL, we can make use of the [node-red-contrib-postgres](https://flows.nodered.org/node/node-red-contrib-postgres) nodes, which can be installed under Manage palette in the top left menu. From here we need to:
 1. Get data from Lora server.
+* Make sure to register a new HTTP integration for the Application on Lora server and point the Uplink data url to `http://nodered:1880/<nodered-http-endpoint>`
 2. Prepare data for table insert in postgres.
 3. Write the data to the database.
 
