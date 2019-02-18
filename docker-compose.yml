@@ -77,7 +77,7 @@ services:
   # NODERED
   #----------------
   nodered:
-    image: nodered/node-red-docker:slim
+    image: nodered/node-red-docker
     container_name: nodered
     ports:
       - "1880:1880"
